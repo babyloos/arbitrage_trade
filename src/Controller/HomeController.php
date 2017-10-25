@@ -6,12 +6,22 @@ class HomeController extends AppController {
     
     public function initialize() {
         parent::initialize();
-         $this->loadComponent('ArbitrageCalc');
+        $this->loadComponent('ArbitrageCalc');
     }
-    
     
     public function index() {
-        // echo "index";
-        echo $this->ArbitrageCalc->calc(10, 20);
+        $this->ArbitrageCalc->test();
     }
 }
+
+/*
+AssetModel
+    資産情報
+    coincheckでの資産(JPY, BTC)
+    zaifでの資産(JPY, BTC)
+
+ValueModel
+    価格情報
+    coincheckでの買取、販売レート
+    zaifでの買取、販売レート
+*/

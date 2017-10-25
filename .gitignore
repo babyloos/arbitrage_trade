@@ -14,3 +14,5 @@
 
 /logs/*
 !/logs/empty
+
+php_errors.log
