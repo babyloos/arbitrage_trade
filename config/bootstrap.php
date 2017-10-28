@@ -228,6 +228,8 @@ Type::build('timestamp')
 //     Plugin::load('DebugKit', ['bootstrap' => true]);
 // }
 
-if (Configure::read('debug') && !isset($_ENV['CAKE_ENV'])) {
-    Plugin::load('DebugKit', ['bootstrap' => true]);
-}
+/*
+    if (Configure::read('debug') && !isset($_ENV['CAKE_ENV'])) {
+        Plugin::load('DebugKit', ['bootstrap' => true]);
+    }
+*/
