@@ -92,7 +92,7 @@
         $("#zaifBtc").text(data.asset.zaif_btc);
         $("#totalJpy").text(data.asset.total_jpy);
         $("#totalBtc").text(data.asset.total_btc);
-        $("#totalValuation").text(data.asset.totalValuation);
+        $("#totalValuation").text(data.asset.total_valuation);
         $("#coincheckBid").text(data.value.coincheck_bid);
         $("#coincheckAsk").text(data.value.coincheck_ask);
         $("#zaifBid").text(data.value.zaif_bid);

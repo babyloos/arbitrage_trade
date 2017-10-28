@@ -36,6 +36,7 @@ class ArbitrageCalcComponent extends Component
     
     // coincheckとzaifの価格情報を取得する
     // DBの更新を行う
+    // DBに履歴を蓄積する
     function updateValue() {
         $coincheckValue = $this->coincheckApi->ticker->all();
         $this->valueData["coincheckBid"] = (double)$coincheckValue["bid"];
@@ -43,88 +44,69 @@ class ArbitrageCalcComponent extends Component
         $this->valueData["zaifBid"] = (double)$this->Zaif->pub("ticker", "btc_jpy")->bid;
         $this->valueData["zaifAsk"] = (double)$this->Zaif->pub("ticker", "btc_jpy")->ask;
         
-        if($this->Value->find()->count() == 0) {
-            $record = $this->Value->newEntity([
-                    "coincheck_bid" => $this->valueData["coincheckBid"],
-                    "coincheck_ask" => $this->valueData["coincheckAsk"],
-                    "zaif_bid" => $this->valueData["zaifBid"],
-                    "zaif_ask" => $this->valueData["zaifAsk"]
-                ]);
-            $this->Value->save($record);
-        } else {
-            $record = $this->Value->find()->first();
-            $record->coincheck_bid = $this->valueData["coincheckBid"];
-            $record->coincheck_ask = $this->valueData["coincheckAsk"];
-            $record->zaif_bid = $this->valueData["zaifBid"];
-            $record->zaif_ask = $this->valueData["zaifAsk"];
-            $this->Value->save($record);
-        }
-        
-        // return $this->valueData;
+        $record = $this->Value->newEntity([
+                "coincheck_bid" => $this->valueData["coincheckBid"],
+                "coincheck_ask" => $this->valueData["coincheckAsk"],
+                "zaif_bid" => $this->valueData["zaifBid"],
+                "zaif_ask" => $this->valueData["zaifAsk"]
+            ]);
+        $this->Value->save($record);
     }
     
     // 両取引所ごとの資産、全体の資産を計算、取得する
     // DBの更新を行う
-    function updateAsset() {
+    // DBに履歴を蓄積する
+    function updateAsset($asset=false) {
         // coincheckの資産取得
         /*
-        $coincheckAsset = $this->coincheckApi->account->balance();
-        // if(!$coincheckAsset["success"]) throw new Exception("coincheck APIエラー");
-        $this->assetData["coincheckJpy"] = (double)$coincheckAsset["jpy"];
-        $this->assetData["coincheckBtc"] = (double)$coincheckAsset["btc"];
-        // zaifの資産取得(本人確認後実装)
-        // エラー処理
-        $this->assetData["zaifJpy"] = 100000.0;
-        $this->assetData["zaifBtc"] = 10.0;
-        
-        // 全体の資産合計
-        $this->assetData["totalBtc"] = $this->assetData["coincheckBtc"] + $this->assetData["zaifBtc"];
-        $this->assetData["totalJpy"] = $this->assetData["coincheckJpy"] + $this->assetData["zaifJpy"];
-        
-        // 評価額合計
-        $btcValue = $this->valueData["coincheckBid"] > $this->valueData["zaifBid"] ? $this->valueData["coincheckBid"] : $this->valueData["zaifBid"];
-        $this->assetData["totalValuation"] = $this->assetData["totalJpy"] + ($this->assetData["totalBtc"] * $btcValue);
+            TODO:
+                実際の資産を取り扱う
         */
         
-        // debug
-        $this->assetData["coincheckJpy"] = 500000;
-        $this->assetData["coincheckBtc"] = 10;
-        $this->assetData["zaifJpy"] = 500000;
-        $this->assetData["zaifBtc"] = 10;
-        
-        
-        // DBに保存
-        if($this->Asset->find()->count() == 0) {
-            $record = $this->Asset->newEntity([
-                    "coincheck_jpy" => $this->assetData["coincheckJpy"],
-                    "coincheck_btc" => $this->assetData["coincheckBtc"],
-                    "zaif_jpy" => $this->assetData["zaifJpy"],
-                    "zaif_btc" => $this->assetData["zaifBtc"],
-                ]);
-            $this->Asset->save($record);
-        } else {
-            $record = $this->Asset->find()->first();
-            // 更新処理
-            $record->coincheck_jpy = $this->assetData["coincheckJpy"];
-            $record->coincheck_btc = $this->assetData["coincheckBtc"];
-            $record->zaif_jpy = $this->assetData["zaifJpy"];
-            $record->zaif_btc = $this->assetData["zaifBtc"];
-            $this->Asset->save($record);
+        if(!$asset) {
+            if($this->Asset->find()->count() == 0) {
+                $this->initAsset();
+                return;
+            }
         }
         
-        // return $this->assetData;
+        // DBに保存
+        $record = $this->Asset->newEntity([
+                "coincheck_jpy" => $asset->coincheck_jpy,
+                "coincheck_btc" => $asset->coincheck_btc,
+                "zaif_jpy" => $asset->zaif_jpy,
+                "zaif_btc" => $asset->zaif_btc,
+            ]);
+        $this->Asset->save($record);
+    }
+    
+    function initAsset() {
+        if($this->Asset->find()->count() == 0) {
+            $record = $this->Asset->newEntity([
+                    "coincheck_jpy" => 10000000,
+                    "coincheck_btc" => 10,
+                    "zaif_jpy" => 10000000,
+                    "zaif_btc" => 10,
+                ]);
+            $this->Asset->save($record);
+        }
     }
     
     // 資産情報を取得する
     function getAsset() {
-        $assetData = $this->Asset->find()->first();
+        $assetData = $this->Asset->find()->last();
+        $assetData->total_jpy = $assetData->coincheck_jpy + $assetData->zaif_jpy;
+        $assetData->total_btc = $assetData->coincheck_btc + $assetData->zaif_btc;
+        $valueData = $this->getValue();
+        $btcValue = $valueData->coincheck_bid > $valueData->zaif_bid ? $valueData->coincheck_bid : $valueData->zaif_bid;
+        $assetData->total_valuation = $assetData->total_jpy + ($assetData->total_btc * $btcValue);
         return $assetData;
     }
     
     // 価格情報を取得する
     // DBから取得
     function getValue() {
-        $valueData = $this->Value->find()->first();
+        $valueData = $this->Value->find()->last();
         return $valueData;
     }
     
@@ -150,15 +132,134 @@ class ArbitrageCalcComponent extends Component
         return $diffData;
     }
     
+    // BTC購入販売処理
+    
+    // coincheckで購入し、zaifで販売する
+    function buyCoincheck($btcAmount) {
+        $asset = $this->getAsset();
+        $value = $this->getValue();
+        if($asset->coincheck_jpy >= $btcAmount * $value->coincheck_bid && $asset->zaif_btc >= $btcAmount) {
+            $asset->coincheck_btc += $btcAmount;
+            $asset->coincheck_jpy -= $btcAmount * $value->coincheck_ask;
+            $asset->zaif_btc -= $btcAmount;
+            $asset->zaif_jpy += $btcAmount * $value->zaif_bid;
+            $asset->total_jpy = $asset->coincheck_jpy + $asset->zaif_jpy;
+            $asset->total_btc = $asset->coincheck_btc + $asset->zaif_btc;
+            // var_dump($asset->coincheck_jpy);
+            $this->updateAsset($asset);
+            $ret = true;
+        } else {
+            $ret = false;
+        }
+        
+        return $ret;
+    }
+    
+    // zaifで購入し、coincheckで販売する
+    function buyZaif($btcAmount) {
+        $asset = $this->getAsset();
+        $value = $this->getValue();
+        if($asset->zaif_jpy >= $btcAmount * $value->zaif_ask && $asset->coincheck_btc >= $btcAmount) {
+            $asset->zaif_btc += $btcAmount;
+            $asset->zaif_jpy -= $btcAmount * $value->zaif_ask;
+            $asset->coincheck_btc -= $btcAmount;
+            $asset->coincheck_jpy += $btcAmount * $value->coincheck_bid;
+            $this->updateAsset($asset);
+            $ret = true;
+        } else {
+            $ret = false;
+        }
+        
+        return $ret;
+    }
+    
     // 両取引所の残高を確認し、調整する。
     function adjustAsset() {
+        // 手数料もシミュレーションする
         // coincheckから他口座への手数料0.0005BTC
-        // 規定数量よりも少なくなっている場合は反対サイトから送付する
-        // JPYは送金できないので、BTC残量だけを監視し、反対サイトへ送付する
-        // coincheckの資産を確認
-        //      規定数量より減っている場合はzaifから送付
-        // zaifの資産を確認
-        //      規定数量より減っている場合はcoincheckから送付
+        // zaifからcoincheckも同じ
+      
+        // debug
+        // とりあえずJPY, BTC共に同数になるように調整
+        $asset = $this->getAsset();
+        $jpyDiff = $asset->coincheck_jpy - $asset->zaif_jpy;
+        $btcDiff = $asset->coincheck_btc - $asset->zaif_btc;
+        if($jpyDiff > 0) {
+            $asset->coincheck_jpy -= $jpyDiff / 2;
+            $asset->zaif_jpy += $jpyDiff / 2;
+        } else {
+            $asset->zaif_jpy -= $jpyDiff / 2 * -1;
+            $asset->coincheck_jpy += $jpyDiff / 2 * -1;
+        }
+        
+        if($btcDiff > 0) {
+            $asset->coincheck_btc -= $btcDiff / 2;
+            $asset->zaif_btc += $btcDiff / 2;
+        } else {
+            $asset->zaif_btc -= $btcDiff / 2 * -1;
+            $asset->coincheck_btc += $btcDiff / 2 * -1;
+        }
+        
+        $this->updateAsset($asset);
+    }
+    
+    function sendBtc($fromExchange, $amount) {
+        $asset = $this->Asset->find()->last();
+        if($fromExchange = "coincheck") {
+            if($asset->coincheck_btc >= $amount) {
+                $asset->coincheck_btc -= $amount;
+                $asset->zaif_btc += $amount;
+                $this->updateAsset($asset);
+            } else {
+                return false;
+            }
+        } else if($fromExchange == "zaif") {
+            if($asset->zaif_btc >= $amount) {
+                $asset->zaif_btc -= $amount;
+                $asset->coincheck_btc += $amount;
+                $this->updateAsset($asset);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    
+    function sendJpy($fromExchange, $amount) {
+        $asset = $this->Asset->find()->last();
+        if($fromExchange = "coincheck") {
+            if($asset->coincheck_jpy >= $amount) {
+                $asset->coincheck_jpy -= $amount;
+                $asset->zaif_jpy += $amount;
+                $this->updateAsset($asset);
+            } else {
+                return false;
+            }
+        } else if($fromExchange == "zaif") {
+            if($asset->zaif_jpy >= $amount) {
+                $asset->zaif_jpy -= $amount;
+                $asset->coincheck_jpy += $amount;
+                $this->updateAsset($asset);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+     }
+     
+    // 資産履歴を取得
+    public function getAssetHistory($limit) {
+        $assetHistory = $this->Asset->find()->limit($limit)->toArray();
+        $valueData = $this->getValue();
+        foreach($assetHistory as &$asset) {
+            $asset->total_jpy = $asset->coincheck_jpy + $asset->zaif_jpy;
+            $asset->total_btc = $asset->coincheck_btc + $asset->zaif_btc;
+            $btcValue = $valueData->coincheck_bid > $valueData->zaif_bid ? $valueData->coincheck_bid : $valueData->zaif_bid;
+            $asset->total_valuation = $asset->total_jpy + ($asset->total_btc * $btcValue);
+        }
+        return $assetHistory;
     }
 
     public function test()

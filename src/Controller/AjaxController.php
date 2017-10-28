@@ -21,17 +21,6 @@ class AjaxController extends AppController {
 		}
 		*/
 		
-		// データ用意
-		// データの更新作業は定期実行で行うので、ここでは行わない。
-        // $valueData = $this->ArbitrageCalc->getValue();
-        // $assetData = $this->ArbitrageCalc->getAsset();
-        // 差額取得
-        // $diffData = $this->ArbitrageCalc->getDiff();
-       
-	    // json送信
-	    // var_dump($valueData);
-	    // var_dump($assetData);
-	    
 	    $jsonData = [];
 	    $value = $this->ArbitrageCalc->getValue();
 	    $asset = $this->ArbitrageCalc->getAsset();
@@ -40,24 +29,8 @@ class AjaxController extends AppController {
 	    $jsonData["value"] = $value;
 	    $jsonData["asset"] = $asset;
 	    $jsonData["diff"] = $diff;
-	    
-	    /*
-	    foreach($valueData as $data) {
-	        $jsonData[] = 
-	    }
-	    
-	    foreach($assetData as $data) {
-	        array_push($jsonData["asset"], $data);
-	    }
-	    
-	    foreach($diffData as $data) {
-	        array_push($jsonData["diff"], $data);
-	    }
-	    */
-	    
-	   // var_dump($jsonData);
 	   
-	   echo json_encode($jsonData);
+		echo json_encode($jsonData);
 	    
 	   // $this->set('jsonData', $jsonData);
         // JsonView がシリアライズするべきビュー変数を指定する
