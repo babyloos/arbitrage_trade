@@ -11,8 +11,11 @@
 !/tmp/sessions/empty
 /tmp/tests/*
 !/tmp/tests/empty
+/tmp/*
 
 /logs/*
 !/logs/empty
 
 php_errors.log
+composer.phar
+nohup.out

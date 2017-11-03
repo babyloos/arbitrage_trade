@@ -60,7 +60,7 @@
 <!-- jsonデータ取得用 -->
 <script>
     // var csrf = $('input[name=_csrfToken]').val();
-    var url = "/arbitrage/ajax";
+    var url = "/arbitrage_trade/ajax";
     ajax();
     setInterval(function(){
         ajax();
