@@ -1,16 +1,16 @@
 <?php
 
 namespace App\Controller;
-use Cake\Datasource\ConnectionManager;
+// use Cake\Datasource\ConnectionManager;
 
 class HistoryController extends AppController {
     
-    public $paginate = [
-        'limit' => 50,
-        'order' => [
-            'Asset.created' => 'desc'
-        ]
-    ];
+    // public $paginate = [
+    //     'limit' => 50,
+    //     'order' => [
+    //         'Asset.created' => 'desc'
+    //     ]
+    // ];
     
     public function initialize() {
         parent::initialize();
@@ -18,11 +18,14 @@ class HistoryController extends AppController {
         $this->loadComponent('Paginator');
     }
     
-    public function index() {
+    public function index($page=1) {
         // 資産情報の履歴を１００件取得
         // $assetHistory = $this->ArbitrageCalc->getAssetHistory(100);
         // $this->set("assetHistory", $assetHistory);
-        $this->set("asset", $this->paginate());
+        // $this->set("asset", $this->paginate());
+        
+        // $assetHit
+        
     }
     
 }
