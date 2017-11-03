@@ -117,7 +117,13 @@ class ArbitrageCalcComponent extends Component
     
     // 資産情報を取得する
     function getAsset() {
-        $assetData = $this->Asset->find()->first();
+        // $assetData = $this->Asset->find()->first();
+        $assetData = $this->Asset->find()->last();
+        $assetData->total_jpy = $assetData->coincheck_jpy + $assetData->zaif_jpy;
+        $assetData->total_btc = $assetData->coincheck_btc + $assetData->zaif_btc;
+        $valueData = $this->getValue();
+        $btcValue = $valueData->coincheck_bid > $valueData->zaif_bid ? $valueData->coincheck_bid : $valueData->zaif_bid;
+        $assetData->total_valuation = $assetData->total_jpy + ($assetData->total_btc * $btcValue);
         return $assetData;
     }
     
