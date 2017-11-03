@@ -16,3 +16,5 @@
 !/logs/empty
 
 php_errors.log
+composer.phar
+nohup.out
