@@ -250,6 +250,7 @@ class ArbitrageCalcComponent extends Component
      
     // 資産履歴を取得
     public function getAssetHistory($limit) {
+	// update
         $assetHistory = $this->Asset->find()->limit($limit)->toArray();
         $valueData = $this->getValue();
         foreach($assetHistory as &$asset) {
