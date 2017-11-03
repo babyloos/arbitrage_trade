@@ -53,5 +53,6 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     </div>
     <footer>
     </footer>
+<?= $this->Html->script(['https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js']) ?>
 </body>
 </html>

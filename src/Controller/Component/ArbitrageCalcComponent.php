@@ -158,14 +158,6 @@ class ArbitrageCalcComponent extends Component
     // 両取引所の残高を確認し、調整する。
     function adjustAsset() {
         // coincheckから他口座への手数料0.0005BTC
-<<<<<<< HEAD
-        // 規定数量よりも少なくなっている場合は反対サイトから送付する
-        // JPYは送金できないので、BTC残量だけを監視し、反対サイトへ送付する
-        // coincheckの資産を確認
-        //      規定数量より減っている場合はzaifから送付
-        // zaifの資産を確認
-        //      規定数量より減っている場合はcoincheckから送付
-=======
         // zaifからcoincheckも同じ
       
         // debug
@@ -240,7 +232,7 @@ class ArbitrageCalcComponent extends Component
      
     // 資産履歴を取得
     public function getAssetHistory($limit) {
-	// update
+        
         $assetHistory = $this->Asset->find()->limit($limit)->toArray();
         $valueData = $this->getValue();
         foreach($assetHistory as &$asset) {
@@ -250,7 +242,7 @@ class ArbitrageCalcComponent extends Component
             $asset->total_valuation = $asset->total_jpy + ($asset->total_btc * $btcValue);
         }
         return $assetHistory;
->>>>>>> 0a06355ba11c33aebdf39b655781ee87834d165f
+        
     }
 
     public function test()

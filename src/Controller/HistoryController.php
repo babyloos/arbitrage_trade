@@ -15,14 +15,14 @@ class HistoryController extends AppController {
     public function initialize() {
         parent::initialize();
         $this->loadComponent('ArbitrageCalc');
-        $this->loadComponent('Paginator');
+        // $this->loadComponent('Paginator');
     }
     
     public function index($page=1) {
         // 資産情報の履歴を１００件取得
         $assetHistory = $this->ArbitrageCalc->getAssetHistory(100);
         $this->set("assetHistory", $assetHistory);
-        $this->set("asset", $this->paginate());
+        // $this->set("asset", $this->paginate());
         
         // $assetHit
         

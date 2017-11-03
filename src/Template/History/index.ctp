@@ -1,4 +1,8 @@
 <div>
+    <?= $this->cell('AssetHistory')->render() ?>
+</div>
+
+<div>
     <table>
         <caption>Asset History</caption>
         <thead>
