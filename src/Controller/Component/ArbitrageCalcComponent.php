@@ -9,7 +9,6 @@ use Cake\ORM\TableRegistry;
 use Cake\I18n\Time;
 /**
  * アービトラージ取引に利用するすべてのコンポーネント
- * 
  */
 class ArbitrageCalcComponent extends Component
 {
