@@ -11,7 +11,7 @@
 !/tmp/sessions/empty
 /tmp/tests/*
 !/tmp/tests/empty
-/tmp/*
+tmp/*
 
 /logs/*
 !/logs/empty

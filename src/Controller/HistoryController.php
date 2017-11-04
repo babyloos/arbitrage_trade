@@ -18,6 +18,7 @@ class HistoryController extends AppController {
         // $this->loadComponent('Paginator');
     }
     
+    // 履歴表示
     public function index($page=1) {
         // 資産情報の履歴を１００件取得
         $assetHistory = $this->ArbitrageCalc->getAssetHistory(100);
@@ -25,6 +26,12 @@ class HistoryController extends AppController {
         // $this->set("asset", $this->paginate());
         
         // $assetHit
+        
+    }
+    
+    
+    // 推移グラフ
+    public function graph() {
         
     }
     
